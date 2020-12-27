@@ -33,7 +33,7 @@ class Game:
             self.combination.append(integer)
             i += 1
     
-    def reset(self, length):
+    def hardReset(self, length):
         self.combination = []
         self.playerInput = []
         i = 0
@@ -45,12 +45,16 @@ class Game:
             self.combination.append(integer)
             i += 1
     
+    def inputReset(self):
+        self.playerInput = []
+    
     def increment(self):
         while True:
             integer = random.randint(1, 3)
-            if self.combination[len(self.combination) - 2] != integer and self.combination[len(self.combination) - 1] != integer:
-                self.combination.append(integer)
-                break
+            if self.combination[-2] == integer and self.combination[-1] == integer:
+                continue
+            self.combination.append(integer)
+            break
     
     def verifyInput(self, index):
         if self.combination[index] != self.playerInput[index]:
@@ -58,34 +62,59 @@ class Game:
         return True
 
 gameObj = Game(3)
+success = True
 
-i = 0
+while True:
+    for n in range(7):
 
-for j in gameObj.combination:
-    Light.on(j)
-    sleep(1000)
-    Light.off(j)
-    sleep(500)
+        #display combination
+        for j in gameObj.combination:
+            Light.on(j)
+            sleep(1000)
+            Light.off(j)
+            sleep(500)
 
-while i < 3:
-    if pin0.is_touched():
-        gameObj.playerInput.append(1)
-        if not gameObj.verifyInput(i):
+        #defines and resets counter
+        i = 0
+
+        #user tries to guess combination
+        while i < (n + 3):
+            if pin0.is_touched():
+                gameObj.playerInput.append(1)
+                if not gameObj.verifyInput(i):
+                    success = False
+                    break
+                i += 1
+                sleep(500)
+            if pin1.is_touched():
+                gameObj.playerInput.append(2)
+                if not gameObj.verifyInput(i):
+                    success = False
+                    break
+                i += 1
+                sleep(500)
+            if pin2.is_touched():
+                gameObj.playerInput.append(3)
+                if not gameObj.verifyInput(i):
+                    success = False
+                    break
+                i += 1
+                sleep(500)
+        
+        if not success:
             Light.on(1)
+            sleep(2000)
+            Light.off(1)
+            sleep(500)
+            gameObj.hardReset(3)
             break
-        i += 1
-        sleep(500)
-    if pin1.is_touched():
-        gameObj.playerInput.append(2)
-        if not gameObj.verifyInput(i):
-            Light.on(1)
-            break
-        i += 1
-        sleep(500)
-    if pin2.is_touched():
-        gameObj.playerInput.append(3)
-        if not gameObj.verifyInput(i):
-            Light.on(1)
-            break
-        i += 1
-        sleep(500)
+
+        #increment to next combination
+        gameObj.increment()
+        gameObj.inputReset()
+
+    if success:
+        Light.on(3)
+        break
+
+    success = True
