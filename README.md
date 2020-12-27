@@ -1,5 +1,3 @@
-# ibcs2022_microbit_tom
-
 # Images
 Contains images of the final breadboard configuration and connected actuators of each project, has the same name as the python file.
 
